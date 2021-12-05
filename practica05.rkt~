@@ -1,0 +1,34 @@
+#lang nanopass
+(require nanopass/base)
+(define-language L8
+  (terminals
+   (variable (x))
+   (primitive (pr))
+   (constant (c))
+   (type (t)))
+   (Expr (e body)
+         x
+         (quot c)
+         (begin e* ... e)
+         (primapp pr e* ...)
+         (if e0 e1 e2 )
+         (lambda ([x* t*] ...) body)
+         (let ([x t e]) body* ... body)
+         (letrec ([x t e] body* ... body))
+         (letfun ([x t e] body* ... body))
+         (list e* ...)
+         (e0 e1 ...)))
+
+(define (variable? x)
+   (and (symbol? x) (not (memq x '(+ - * / and or)))))
+
+(define (primitive? x)
+  (or (procedure? x) (memq x '(and or + * / - car cdr))))
+
+
+(define (constant? x)
+  (or (number? x) (boolean? x)))
+
+(define (type? t)
+ (or (equal? t 'Int) (equal? t 'Bool) (eq? t 'String) (eq? t 'Char) (eq? t 'Lambda))) ;; T ::= Int | Bool | String | Char
+
