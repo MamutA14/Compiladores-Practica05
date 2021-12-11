@@ -208,3 +208,21 @@ sus parametros adicionales se encuentren dentro  de otro lambda del body origina
                     (caddr t0)                                                   ;; Al aplicar la funcion se devuelve T2
                     (error 'J "El tipo de ~a no es compatible con el de ~a  para realizar la aplicacion de funcion." e0 e1) )  )]
   ))
+
+
+;; EJERCICIO 4
+(define-pass type-infer : L10(ir) -> L10()
+    (Expr : Expr (ir) -> Expr ()
+        ;; Para let solo inferimos el tipo de t cuando de entrada es List, lo denombra a List of
+        [(let ([,x ,t ,[e]]) ,[body])
+            (case t
+                [(List) `(let ([,x ,(J e '()) ,e]) ,body) ]
+                [else   `(let ([,x ,t ,e]) ,body) ])]
+        ;; Para letrec solo inferimos el tipo de t cuando de entrada es Lambda o List, los cambia de T->T y List of respectivamente.
+        [(letrec ([,x ,t ,[e]]) ,[body])
+            (let ( [fixed-type (case t [(List Lambda) (J e '())] [else t]) ])
+                `(letrec ([,x ,fixed-type ,e]) ,body)
+            )]
+        ;; Para letfun siempre inferimos el tipo de t, aplicando tanto para List como para Lambda
+        [(letfun ([,x ,t ,[e]]) ,[body])
+            `(letfun ([,x ,(J e '()) ,e]) ,body)]  ))
